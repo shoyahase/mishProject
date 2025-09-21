@@ -22,4 +22,17 @@ class PracticeView(View):
 
         return render(request, "typeApp/practice.html", {"form":form})
     
+    def post(self, request):
+        form = TranscriptionForm(request.POST)
+
+        if form.is_valid():#データが正しいかどうか
+            user_text = form.save()
+
+            print("入力したテキスト：", user_text.text)
+
+            return redirect('typeApp:top')
+        else:
+            return render(request, "typeApp/practice.html", {"form":form})
+    
+    
 practice = PracticeView.as_view()
