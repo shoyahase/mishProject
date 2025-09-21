@@ -30,9 +30,37 @@ class PracticeView(View):
 
             print("入力したテキスト：", user_text)
 
-            return redirect('typeApp:top')
+            request.session['user_input'] = user_text
+
+            return redirect('typeApp:result')
         else:
             return render(request, "typeApp/practice.html", {"form":form})
     
     
 practice = PracticeView.as_view()
+
+class ResultView(View):
+    def get(self, request):
+
+        user_input = request.session.get('user_input', '(入力がない)')
+
+        if 'user_input' in request.session:
+            del request.session['user_input']
+
+        correct_answer = "正解のテキスト"
+
+        if user_input == correct_answer:
+            score = 10
+        else:
+            score = 0
+
+        context = {
+        'user_input': user_input,
+        'correct_answer': correct_answer,
+        'score': score,
+        }
+
+
+        return render(request, "typeApp/result.html", context)
+    
+result = ResultView.as_view()
