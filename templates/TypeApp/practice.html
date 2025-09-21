@@ -1,0 +1,13 @@
+
+{% extends "base/type_base.html" %}
+{% block body %}
+
+<h2>練習ページだよ</h2>
+
+<form action="{% url 'typeApp:practice' %}" method="post">
+    {% csrf_token %} {{ form.as_p }} <button type="submit">採点する</button>
+</form>
+
+
+
+{% endblock %}
