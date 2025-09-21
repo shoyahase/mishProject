@@ -26,9 +26,9 @@ class PracticeView(View):
         form = TranscriptionForm(request.POST)
 
         if form.is_valid():#データが正しいかどうか
-            user_text = form.save()
+            user_text = form.cleaned_data['text']
 
-            print("入力したテキスト：", user_text.text)
+            print("入力したテキスト：", user_text)
 
             return redirect('typeApp:top')
         else:
