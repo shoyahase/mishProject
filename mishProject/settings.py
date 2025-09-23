@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'typeApp.apps.TypeappConfig',
+    'apiapp.apps.ApiappConfig',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#API用の設定
+import os
+from dotenv import load_dotenv
+
+# .envファイルを読み込む
+load_dotenv()
+
+# Build paths...
+
+# .envからSECRET_KEYを読み込む
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+# .envからDEBUG設定を読み込む (文字列の'True'をboolのTrueに変換)
+DEBUG = os.getenv('DEBUG') == 'True'
+
+# ... (INSTALLED_APPS など) ...
