@@ -7,6 +7,8 @@ from zoneinfo import ZoneInfo
 
 from .forms import TranscriptionForm
 
+from apiapp.apiapp import get_gemini_scoring
+
 class TopView(View):
     def get(self, request):
         date = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y年%m月%d日 %H:%M:%S")
@@ -18,8 +20,8 @@ top = TopView.as_view()
 class PracticeView(View):
     def get(self, request):
 
-        correct_answer = request.session["correct_answer"]
-        user_prompt = request.session['user_prompt']
+        correct_answer = request.session.get("correct_answer", '')
+        user_prompt = request.session.get('user_prompt', "")
 
         form = TranscriptionForm()
 
@@ -33,11 +35,18 @@ class PracticeView(View):
         form = TranscriptionForm(request.POST)
 
         if form.is_valid():#データが正しいかどうか
-            user_text = form.cleaned_data['text']
+            user_input = form.cleaned_data['text']
 
-            print("入力したテキスト：", user_text)
+            # ★★★ セッションから正解データを取得 ★★★
+            correct_answer = request.session.get('correct_answer', '')
 
-            request.session['user_input'] = user_text
+            print("入力したテキスト：", user_input)
+
+            scoring_result = get_gemini_scoring(correct_answer, user_input)
+
+            request.session['user_input'] = user_input
+            request.session['score'] = scoring_result.get('score')
+            request.session['advice'] = scoring_result.get('advice')
 
             return redirect('typeApp:result')
         else:
@@ -49,23 +58,19 @@ practice = PracticeView.as_view()
 class ResultView(View):
     def get(self, request):
 
-        user_input = request.session.get('user_input', '(入力がない)')
+        user_input = request.session.pop('user_input', '(入力がない)')
+        correct_answer = request.session.pop("correct_answer", "")
+        score = request.session.pop('score', 0)
+        advice = request.session.pop('advice', '') # ★アドバイスもセッションから取得
 
-        if 'user_input' in request.session:
-            del request.session['user_input']
-
-        correct_answer = request.session["correct_answer"]
-
-        if user_input == correct_answer:
-            score = 10
-        else:
-            score = 0
 
         context = {
-        'user_input': user_input,
-        'correct_answer': correct_answer,
-        'score': score,
+            'user_input': user_input,
+            'correct_answer': correct_answer,
+            'score': score,
+            'advice': advice, # ★コンテキストに追加
         }
+
 
 
         return render(request, "typeApp/result.html", context)
