@@ -4,6 +4,14 @@
 
 <h2>練習ページだよ</h2>
 
+<br>
+
+<h3>あなたのプロンプト</h3>
+<p>{{user_prompt}}</p>
+
+<h3>正解のテキスト</h3>
+<p>{{correct_answer}}</p>
+
 <form action="{% url 'typeApp:practice' %}" method="post">
     {% csrf_token %} {{ form.as_p }} <button type="submit">採点する</button>
 </form>

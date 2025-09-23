@@ -16,11 +16,15 @@ class AskGeminiView(View):
         # Gemini APIから応答を取得
         gemini_answer = get_gemini_response(user_prompt)
         
-        context = {
-            'prompt': user_prompt,
-            'answer': gemini_answer,
-        }
-        return render(request, 'apiapp/ask_gemini.html', context)
+
+        # ★★★ 取得した答えをセッションに保存 ★★★
+        request.session['correct_answer'] = gemini_answer
+        request.session['user_prompt'] = user_prompt
+
+
+
+        return redirect('typeApp:practice')
+
 
 ask_gemini = AskGeminiView.as_view()
 

@@ -18,9 +18,16 @@ top = TopView.as_view()
 class PracticeView(View):
     def get(self, request):
 
+        correct_answer = request.session["correct_answer"]
+        user_prompt = request.session['user_prompt']
+
         form = TranscriptionForm()
 
-        return render(request, "typeApp/practice.html", {"form":form})
+        context = {"correct_answer":correct_answer,
+                   "form": form,
+                   "user_prompt": user_prompt}
+
+        return render(request, "typeApp/practice.html", context)
     
     def post(self, request):
         form = TranscriptionForm(request.POST)
@@ -47,7 +54,7 @@ class ResultView(View):
         if 'user_input' in request.session:
             del request.session['user_input']
 
-        correct_answer = "正解のテキスト"
+        correct_answer = request.session["correct_answer"]
 
         if user_input == correct_answer:
             score = 10
