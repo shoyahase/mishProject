@@ -14,8 +14,9 @@ class AskGeminiView(View):
 
         
         # Gemini APIから応答を取得
-        gemini_answer = get_gemini_response(user_prompt)
+        # gemini_answer = get_gemini_response(user_prompt)
         
+        gemini_answer = "こんな風ににゅうりょくしてね"
 
         # ★★★ 取得した答えをセッションに保存 ★★★
         request.session['correct_answer'] = gemini_answer

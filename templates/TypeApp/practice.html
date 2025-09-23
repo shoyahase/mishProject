@@ -1,21 +1,27 @@
 
+
 {% extends "base/type_base.html" %}
+{#↓継承しているからこれはいらないと思うのになくすとエラーが起きるs#}
+{% load static %} {# ← ここに追加してみる #}
 {% block body %}
 
-<h2>練習ページだよ</h2>
+<h1>練習ページ</h1>
 
-<br>
+<!-- DjangoからJavaScriptへ -->
 
-<h3>あなたのプロンプト</h3>
-<p>{{user_prompt}}</p>
+<div id="text-container" data-correct-text="{{ correct_answer }}"></div>
 
-<h3>正解のテキスト</h3>
-<p>{{correct_answer}}</p>
-
-<form action="{% url 'typeApp:practice' %}" method="post">
-    {% csrf_token %} {{ form.as_p }} <button type="submit">採点する</button>
-</form>
+<div id = "result-message" style="display: none; margin-top: 20px;">
+    <h2>完了！</h2>
+    <a href="{% url 'typeApp:top' %}">次の問題へ</a>
+</div>
 
 
+{% endblock %}
 
+
+
+{% block extra_js %}
+    {# ★★★ 作成した外部JSファイルを読み込む ★★★ #}
+    <script src="{% static 'typeApp/js/typing.js' %}"></script>
 {% endblock %}

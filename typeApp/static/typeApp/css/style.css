@@ -1,0 +1,21 @@
+#text-container {
+    font-size: 24px;
+    font-family: monospace;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+#text-container span {
+    padding: 2px 0;
+}
+.correct {
+    color: #66cc66;
+}
+.incorrect {
+    color: #ff6666;
+    text-decoration: underline;
+}
+.cursor {
+    background-color: #e0e0e0;
+    border-radius: 2px;
+}
