@@ -44,7 +44,7 @@ const hiraganaToRoman = {
     'ー': ['-'], '、': [','], '。': ['.'], '・': ['/'],
     'ぁ': ['xa'], 'ぃ': ['xi'], 'ぅ': ['xu'], 'ぇ': ['xe'], 'ぉ': ['xo'],
     'ゃ': ['xya'], 'ゅ': ['xyu'], 'ょ': ['xyo'],
-    'っ': ['xtu'], // 促音は特別処理が必要
+    'っ': ['xtu', 'ltu', 'ltsu'], // 促音は特別処理が必要
 };
 
 /**
@@ -124,7 +124,7 @@ let romanIndex = 0;
 let hiraganaUnitIndex = 0;
 
 // 完了メッセージを表示する代わりに、フォームを操作する
-const resultForm = document.getElementById('result-form');
+const resultForm = document.getElementById('result-message');
 const userInputField = document.getElementById('user-input-field');
 
 // ユーザーが入力した文字を保存する配列
@@ -170,6 +170,8 @@ document.addEventListener('keydown', (event) => {
         possibleRomans = [possibleRomans]; // 配列でない場合は配列に変換
     }
 
+    console.log("possibleRomans:",possibleRomans);
+
     // 2. 今回の入力を含めた、現在の単位の入力文字列を作成
     const newTyped = typedForCurrentUnit + typedChar;
 
@@ -201,6 +203,9 @@ document.addEventListener('keydown', (event) => {
         return;
     }
 
+
+    console.log("hiraganaUnitIndex", hiraganaUnitIndex);
+    console.log("hiraganaUnits.length", hiraganaUnits.length);
 
     // --- 終了判定 ---
     if (hiraganaUnitIndex >= hiraganaUnits.length) {

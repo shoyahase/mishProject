@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 # Create your views here.
 
-# from .forms import TranscriptionForm
+from .forms import TranscriptionForm
 
 from apiapp.apiapp import get_gemini_scoring
 
@@ -24,8 +24,12 @@ class PracticeView(View):
         user_prompt = request.session.get('user_prompt', "")
 
 
+        form = TranscriptionForm()
+
+
         context = {"correct_answer":correct_answer,
-                   "user_prompt": user_prompt}
+                   "user_prompt": user_prompt,
+                   "form": form}
 
         return render(request, "typeApp/practice.html", context)
     
