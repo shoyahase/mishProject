@@ -40,7 +40,7 @@ practice = PracticeView.as_view()
 class ResultView(View):
     def post(self, request):
 
-        user_input = request.POST.get('user_input_text', '')
+        user_input = request.POST.get('text', '')
 
         print(user_input)
 
