@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 # Create your views here.
 
-from .forms import TranscriptionForm
+# from .forms import TranscriptionForm
 
 from apiapp.apiapp import get_gemini_scoring
 
@@ -23,52 +23,37 @@ class PracticeView(View):
         correct_answer = request.session.get("correct_answer", '')
         user_prompt = request.session.get('user_prompt', "")
 
-        form = TranscriptionForm()
 
         context = {"correct_answer":correct_answer,
-                   "form": form,
                    "user_prompt": user_prompt}
 
         return render(request, "typeApp/practice.html", context)
     
-    def post(self, request):
-        form = TranscriptionForm(request.POST)
-
-        if form.is_valid():#データが正しいかどうか
-            user_input = form.cleaned_data['text']
-
-            # ★★★ セッションから正解データを取得 ★★★
-            correct_answer = request.session.get('correct_answer', '')
-
-            print("入力したテキスト：", user_input)
-
-            scoring_result = get_gemini_scoring(correct_answer, user_input)
-
-            request.session['user_input'] = user_input
-            request.session['score'] = scoring_result.get('score')
-            request.session['advice'] = scoring_result.get('advice')
-
-            return redirect('typeApp:result')
-        else:
-            return render(request, "typeApp/practice.html", {"form":form})
-    
-    
 practice = PracticeView.as_view()
 
-class ResultView(View):
-    def get(self, request):
 
-        user_input = request.session.pop('user_input', '(入力がない)')
-        correct_answer = request.session.pop("correct_answer", "")
-        score = request.session.pop('score', 0)
-        advice = request.session.pop('advice', '') # ★アドバイスもセッションから取得
+
+class ResultView(View):
+    def post(self, request):
+
+        user_input = request.POST.get('user_input_text', '')
+
+        print(user_input)
+
+
+        # ★★★ セッションから正解データを取得 ★★★
+        correct_answer = request.session.get('correct_answer', '')
+
+        print("入力したテキスト：", user_input)
+
+        scoring_result = get_gemini_scoring(correct_answer, user_input)
 
 
         context = {
             'user_input': user_input,
             'correct_answer': correct_answer,
-            'score': score,
-            'advice': advice, # ★コンテキストに追加
+            'score': scoring_result.get('score'),
+            'advice': scoring_result.get('advice'),
         }
 
 
