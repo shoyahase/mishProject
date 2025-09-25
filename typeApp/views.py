@@ -9,6 +9,11 @@ from .forms import TranscriptionForm
 
 from apiapp.apiapp import get_gemini_scoring
 
+import uuid
+import os
+from django.conf import settings
+
+
 class TopView(View):
     def get(self, request):
         date = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y年%m月%d日 %H:%M:%S")
@@ -23,9 +28,34 @@ class PracticeView(View):
         correct_answer = request.session.get("correct_answer", '')
         user_prompt = request.session.get('user_prompt', "")
 
-        #音声データを取得とりあえず固定ファイルを静的に取得
-        audio_file_path = "typeApp/audio/audio.mp3" 
+        # #音声データを取得.とりあえず固定ファイルを静的に取得
+        # audio_file_path = "typeApp/audio/audio.mp3" 
 
+        #ユニークな音声ファイル名を作成
+        audio_filename = f"audio_{uuid.uuid4().hex}.mp3"
+        #正解テキスト
+        text_to_synthesize = correct_answer
+
+        #ここ仮
+        # 仮の音声生成関数 (実際にはTTS APIを呼び出す)
+        #今は仮で、
+        def generate_audio_from_text(text, filename):
+            # 例: テキストを基にしたダミーのMP3ファイルを作成
+            # 実際には、TTS APIを呼び出し、そのレスポンスをファイルに書き込む
+            with open(os.path.join(settings.MEDIA_ROOT, filename), 'wb') as f:
+                # ここに音声データを書き込む
+                f.write(b'DUMMY_MP3_DATA_FOR_' + text.encode('utf-8')) # ダミーデータ
+            return filename
+
+
+        # 音声データを生成し、MEDIA_ROOTに保存
+        generate_audio_from_text(text_to_synthesize, audio_filename)
+
+        # 保存したファイルの相対URLを生成 (MEDIA_URLを利用)
+        audio_url = os.path.join(settings.MEDIA_URL, audio_filename)
+
+        #結果Viewで削除するから保存した音声ファイルの相対パスをセッションに保存しておく。
+        request.session['temp_audio_file_to_delete'] = audio_url
 
         form = TranscriptionForm()
 
@@ -33,7 +63,7 @@ class PracticeView(View):
         context = {"correct_answer":correct_answer,
                    "user_prompt": user_prompt,
                    "form": form,
-                   "audio_file_path": audio_file_path,
+                   "audio_file_path": audio_url,
                    }
 
         return render(request, "typeApp/practice.html", context)
@@ -50,14 +80,31 @@ class ResultView(View):
 
         print(user_input)
 
+        #一時的に作成した今回の音声ファイルの削除
+        audio_url = request.session.pop('temp_audio_file_to_delete', None)
+
+        if audio_url:
+            # settings.MEDIA_URLが '/media/' なら、それを除去する
+            relative_filename = audio_url.replace(settings.MEDIA_URL, '', 1) 
+            full_audio_path = os.path.join(settings.MEDIA_ROOT, relative_filename)
+            if os.path.exists(full_audio_path):
+                try:
+                    os.remove(full_audio_path)
+                    print("音声ファイルを削除しました。")
+                except OSError as e:
+                    print("音声ファイルの削除に失敗しました。")
+            else:
+                print("削除対象が見つかりませんでした。")
+
 
         # ★★★ セッションから正解データを取得 ★★★
         correct_answer = request.session.get('correct_answer', '')
 
         print("入力したテキスト：", user_input)
 
-        # scoring_result = get_gemini_scoring(correct_answer, user_input)
 
+
+        # scoring_result = get_gemini_scoring(correct_answer, user_input)
 
         # context = {
         #     'user_input': user_input,
@@ -65,6 +112,8 @@ class ResultView(View):
         #     'score': scoring_result.get('score'),
         #     'advice': scoring_result.get('advice'),
         # }
+
+
 
         context = {
             'user_input': user_input,
