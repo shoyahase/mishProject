@@ -13,6 +13,7 @@ import uuid
 import os
 from django.conf import settings
 
+from apiapp.tts import generate_mp3_from_text
 
 class TopView(View):
     def get(self, request):
@@ -36,26 +37,40 @@ class PracticeView(View):
         #正解テキスト
         text_to_synthesize = correct_answer
 
-        #ここ仮
-        # 仮の音声生成関数 (実際にはTTS APIを呼び出す)
-        #今は仮で、
-        def generate_audio_from_text(text, filename):
-            # 例: テキストを基にしたダミーのMP3ファイルを作成
-            # 実際には、TTS APIを呼び出し、そのレスポンスをファイルに書き込む
-            with open(os.path.join(settings.MEDIA_ROOT, filename), 'wb') as f:
-                # ここに音声データを書き込む
-                f.write(b'DUMMY_MP3_DATA_FOR_' + text.encode('utf-8')) # ダミーデータ
-            return filename
+        # #ここ仮
+        # # 仮の音声生成関数 (実際にはTTS APIを呼び出す)
+        # #今は仮で、
+        # def generate_audio_from_text(text, filename):
+        #     # 例: テキストを基にしたダミーのMP3ファイルを作成
+        #     # 実際には、TTS APIを呼び出し、そのレスポンスをファイルに書き込む
+        #     with open(os.path.join(settings.MEDIA_ROOT, filename), 'wb') as f:
+        #         # ここに音声データを書き込む
+        #         f.write(b'DUMMY_MP3_DATA_FOR_' + text.encode('utf-8')) # ダミーデータ
+        #     return filename
 
 
         # 音声データを生成し、MEDIA_ROOTに保存
-        generate_audio_from_text(text_to_synthesize, audio_filename)
+        generate_mp3_from_text(text_to_synthesize, audio_filename, settings.MEDIA_ROOT)
 
         # 保存したファイルの相対URLを生成 (MEDIA_URLを利用)
-        audio_url = os.path.join(settings.MEDIA_URL, audio_filename)
+        returned_filename = os.path.join(settings.MEDIA_URL, audio_filename)
 
-        #結果Viewで削除するから保存した音声ファイルの相対パスをセッションに保存しておく。
-        request.session['temp_audio_file_to_delete'] = audio_url
+
+        # 音声生成に失敗した場合はエラー処理（例: デフォルト音声やエラーメッセージ）
+        if returned_filename is None:
+            # エラー処理。例: デフォルトの音声URLにするか、エラーページにリダイレクト
+            audio_url = os.path.join(settings.MEDIA_URL, "typeApp/audio/audio.mp3") # デフォルト音声の例
+            print("音声ファイルの生成に失敗しました。デフォルト音声を使用します。")
+            # この場合、セッションに削除対象を保存しない
+        else:
+            print("elseの方だよ")
+            # 保存したファイルの相対URLを生成 (MEDIA_URLを利用)
+            audio_url = os.path.join(settings.MEDIA_URL, returned_filename)
+            # 結果Viewで削除するから保存した音声ファイルの相対パスをセッションに保存しておく。
+            request.session['temp_audio_file_to_delete'] = audio_url
+
+            print("audio_url",audio_url)
+
 
         form = TranscriptionForm()
 
@@ -71,7 +86,6 @@ class PracticeView(View):
 practice = PracticeView.as_view()
 
 
-# aa
 
 class ResultView(View):
     def post(self, request):

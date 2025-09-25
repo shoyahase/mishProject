@@ -17,8 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings # ★★★ settingsをインポート ★★★
+from django.conf.urls.static import static # ★★★ static関数をインポート ★★★
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("typeapp/", include("typeApp.urls")),
     path("apiapp/", include("apiapp.urls")),
 ]
+
+
+# ★★★ 開発環境でのMEDIAファイルの配信設定 ★★★
+if settings.DEBUG: # DEBUG=True の場合にのみ有効にする (本番環境ではWebサーバーが配信するため不要)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
