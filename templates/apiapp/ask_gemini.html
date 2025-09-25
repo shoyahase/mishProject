@@ -1,0 +1,20 @@
+{% extends "base/type_base.html" %}
+{% block body %}
+
+<h1>Geminiが問題を作成するページ</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="prompt" rows="4" cols="50" placeholder="ここで作問を要求">{{ prompt }}</textarea>
+    <br>
+    <button type="submit">送信</button>
+</form>
+
+{% if answer %}
+    <h2>回答:</h2>
+    <p style="white-space: pre-wrap;">{{ answer }}</p>
+{% endif %}
+
+
+
+{% endblock %}

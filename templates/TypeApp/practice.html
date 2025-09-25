@@ -7,6 +7,14 @@
 
     <h1>リアルタイム練習</h1>
 
+    {#音声プレーヤーを追加#}
+    <div style="margin-bottom: 20px;">
+        <audio controls autoplay> {# 'controls'で再生・一時停止などのUI表示, 'autoplay'で自動再生 #}
+            <source src="{% static audio_file_path %}" type="audio/mpeg">
+            お使いのブラウザは音声要素をサポートしていません。
+        </audio>
+    </div>
+
     <div id="text-container" data-correct-text="{{ correct_answer }}"></div>
 
     <hr>

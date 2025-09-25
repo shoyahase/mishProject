@@ -23,19 +23,25 @@ class PracticeView(View):
         correct_answer = request.session.get("correct_answer", '')
         user_prompt = request.session.get('user_prompt', "")
 
+        #音声データを取得とりあえず固定ファイルを静的に取得
+        audio_file_path = "typeApp/audio/audio.mp3" 
+
 
         form = TranscriptionForm()
 
 
         context = {"correct_answer":correct_answer,
                    "user_prompt": user_prompt,
-                   "form": form}
+                   "form": form,
+                   "audio_file_path": audio_file_path,
+                   }
 
         return render(request, "typeApp/practice.html", context)
     
 practice = PracticeView.as_view()
 
 
+# aa
 
 class ResultView(View):
     def post(self, request):
@@ -50,14 +56,21 @@ class ResultView(View):
 
         print("入力したテキスト：", user_input)
 
-        scoring_result = get_gemini_scoring(correct_answer, user_input)
+        # scoring_result = get_gemini_scoring(correct_answer, user_input)
 
+
+        # context = {
+        #     'user_input': user_input,
+        #     'correct_answer': correct_answer,
+        #     'score': scoring_result.get('score'),
+        #     'advice': scoring_result.get('advice'),
+        # }
 
         context = {
             'user_input': user_input,
             'correct_answer': correct_answer,
-            'score': scoring_result.get('score'),
-            'advice': scoring_result.get('advice'),
+            'score': 0,
+            'advice': "仮のアドバイス",
         }
 
 

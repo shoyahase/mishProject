@@ -139,4 +139,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # .envからDEBUG設定を読み込む (文字列の'True'をboolのTrueに変換)
 DEBUG = os.getenv('DEBUG') == 'True'
 
-# ... (INSTALLED_APPS など) ...
+
+
+#mediaディレクトリをプロジェクトのルートに作成
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # mediaディレクトリをプロジェクトのルートに作成する想定
+
+
