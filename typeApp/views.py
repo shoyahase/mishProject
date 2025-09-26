@@ -13,7 +13,9 @@ import uuid
 import os
 from django.conf import settings
 
-from apiapp.tts import generate_mp3_from_text
+from apiapp.tts import generate_mp3_from_text, split_text_by_punctuation 
+
+import json
 
 class TopView(View):
     def get(self, request):
@@ -29,57 +31,58 @@ class PracticeView(View):
         correct_answer = request.session.get("correct_answer", '')
         user_prompt = request.session.get('user_prompt', "")
 
-        # #音声データを取得.とりあえず固定ファイルを静的に取得
-        # audio_file_path = "typeApp/audio/audio.mp3" 
+        # ★★★ ここから句点ごとの処理 ★★★
+        phrases = split_text_by_punctuation(correct_answer)
+        
+        # 音声ファイルパスとテキストのペアを格納するリスト
+        audio_data_list = []
+        # 削除対象のファイル名（フルパス）を格納するリスト
+        files_to_delete = []
 
-        #ユニークな音声ファイル名を作成
-        audio_filename = f"audio_{uuid.uuid4().hex}.mp3"
-        #正解テキスト
-        text_to_synthesize = correct_answer
+        for i, phrase_text in enumerate(phrases):
+            if not phrase_text.strip():
+                #空白のみ
+                continue
+            
+            #ユニークな音声ファイル名を作成audio_1とかにpart付けされる
+            audio_filename = f"audio_{uuid.uuid4().hex}_{i}.mp3"
 
-        # #ここ仮
-        # # 仮の音声生成関数 (実際にはTTS APIを呼び出す)
-        # #今は仮で、
-        # def generate_audio_from_text(text, filename):
-        #     # 例: テキストを基にしたダミーのMP3ファイルを作成
-        #     # 実際には、TTS APIを呼び出し、そのレスポンスをファイルに書き込む
-        #     with open(os.path.join(settings.MEDIA_ROOT, filename), 'wb') as f:
-        #         # ここに音声データを書き込む
-        #         f.write(b'DUMMY_MP3_DATA_FOR_' + text.encode('utf-8')) # ダミーデータ
-        #     return filename
+            returned_filename = generate_mp3_from_text(phrase_text, audio_filename, settings.MEDIA_ROOT)
+            
+            if returned_filename:
+                audio_url = os.path.join(settings.MEDIA_URL, returned_filename)
+                audio_data_list.append({
+                    'id': f'phrase-{i}', # 各フレーズにユニークなIDを付与
+                    'text': phrase_text,
+                    'audio_url': audio_url
+                })
+                # 削除のためにファイルのフルパスを保存
+                files_to_delete.append(os.path.join(settings.MEDIA_ROOT, returned_filename))
+            else:
+                # 音声生成失敗時は、そのフレーズをスキップするか、エラー表示を検討
+                print(f"フレーズ '{phrase_text}' の音声生成に失敗しました。")
+                # 必要であればエラーハンドリングや、デフォルトのテキスト・音声を追加
+                # audio_data_list.append({
+                #     'id': f'phrase-{i}',
+                #     'text': phrase_text,
+                #     'audio_url': os.path.join(settings.MEDIA_URL, "typeApp/audio/error_sound.mp3") # エラー音声の例
+                # })
 
-
-        # 音声データを生成し、MEDIA_ROOTに保存
-        generate_mp3_from_text(text_to_synthesize, audio_filename, settings.MEDIA_ROOT)
-
-        # 保存したファイルの相対URLを生成 (MEDIA_URLを利用)
-        returned_filename = os.path.join(settings.MEDIA_URL, audio_filename)
-
-
-        # 音声生成に失敗した場合はエラー処理（例: デフォルト音声やエラーメッセージ）
-        if returned_filename is None:
-            # エラー処理。例: デフォルトの音声URLにするか、エラーページにリダイレクト
-            audio_url = os.path.join(settings.MEDIA_URL, "typeApp/audio/audio.mp3") # デフォルト音声の例
-            print("音声ファイルの生成に失敗しました。デフォルト音声を使用します。")
-            # この場合、セッションに削除対象を保存しない
-        else:
-            print("elseの方だよ")
-            # 保存したファイルの相対URLを生成 (MEDIA_URLを利用)
-            audio_url = os.path.join(settings.MEDIA_URL, returned_filename)
-            # 結果Viewで削除するから保存した音声ファイルの相対パスをセッションに保存しておく。
-            request.session['temp_audio_file_to_delete'] = audio_url
-
-            print("audio_url",audio_url)
-
+        # ★★★ 生成した音声ファイルのフルパスリストをセッションに保存 ★★★
+        request.session['temp_audio_files_to_delete'] = files_to_delete
+        # ★★★ テンプレートに渡すデータも変更 ★★★
+        request.session['phrases_data'] = audio_data_list # JSが利用するためにセッションにも保存
+        
 
         form = TranscriptionForm()
 
 
-        context = {"correct_answer":correct_answer,
-                   "user_prompt": user_prompt,
-                   "form": form,
-                   "audio_file_path": audio_url,
-                   }
+        context = {
+            # "correct_answer":correct_answer,
+            "user_prompt": user_prompt,
+            "form": form,
+            "phrases_data_json": json.dumps(audio_data_list),
+        }
 
         return render(request, "typeApp/practice.html", context)
     
@@ -92,23 +95,20 @@ class ResultView(View):
 
         user_input = request.POST.get('text', '')
 
-        print(user_input)
+        # print(user_input)
 
-        #一時的に作成した今回の音声ファイルの削除
-        audio_url = request.session.pop('temp_audio_file_to_delete', None)
+        # ★★★ 一時的に作成した今回の音声ファイルの削除 (リストで処理) ★★★
+        temp_audio_full_paths = request.session.pop('temp_audio_files_to_delete', []) # popで取得後セッションから削除
 
-        if audio_url:
-            # settings.MEDIA_URLが '/media/' なら、それを除去する
-            relative_filename = audio_url.replace(settings.MEDIA_URL, '', 1) 
-            full_audio_path = os.path.join(settings.MEDIA_ROOT, relative_filename)
-            if os.path.exists(full_audio_path):
+        for file_path in temp_audio_full_paths:
+            if os.path.exists(file_path):
                 try:
-                    os.remove(full_audio_path)
-                    print("音声ファイルを削除しました。")
+                    os.remove(file_path)
+                    print(f"一時音声ファイルを削除しました: {file_path}")
                 except OSError as e:
-                    print("音声ファイルの削除に失敗しました。")
+                    print(f"一時音声ファイルの削除に失敗しました {file_path}: {e}")
             else:
-                print("削除対象が見つかりませんでした。")
+                print(f"警告: 削除対象のファイルが見つかりませんでした: {file_path}")
 
 
         # ★★★ セッションから正解データを取得 ★★★

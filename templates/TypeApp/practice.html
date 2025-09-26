@@ -7,15 +7,25 @@
 
     <h1>リアルタイム練習</h1>
 
-    {#音声プレーヤーを追加#}
+    {# 音声プレーヤーは1つに集約し、JavaScriptでsrcを切り替える #}
     <div style="margin-bottom: 20px;">
-        <audio controls autoplay> {# 'controls'で再生・一時停止などのUI表示, 'autoplay'で自動再生 #}
-            <source src="{{ audio_file_path }}" type="audio/mpeg">
+        <audio id="main-audio-player" controls style="display: none;">
             お使いのブラウザは音声要素をサポートしていません。
         </audio>
+        <button id="play-next-phrase" style="display: none;">次のフレーズ</button> {# デバッグ用、または手動再生用 #}
     </div>
 
-    <div id="text-container" data-correct-text="{{ correct_answer }}"></div>
+    {# ★追加: スタートを促すメッセージ #}
+    <div id="start-message" style="text-align: center; margin-top: 50px;">
+        <p style="font-size: 1.8em; font-weight: bold;">スペースキーまたはエンターキーを押して開始</p>
+        <p style="font-size: 1.2em; color: #666;">（最初のフレーズが表示され、音声が再生されます）</p>
+    </div>
+
+
+    {# 各フレーズのテキストを表示するコンテナ #}
+    <div id="phrases-display-container" data-phrases-json="{{ phrases_data_json }}" style="display: none;">
+        </div>
+
 
     <hr>
 
@@ -23,10 +33,12 @@
         {% csrf_token %}
         
         {# ★★★ views.pyから渡されたフォーム（textarea）を描画 ★★★ #}
-        {{ form.as_p }}
+        <div id="user-input-form-container" style="display: none;">
+            {{ form.as_p }}
+        </div>
         
         {# 最初は隠しておき、完了後に表示するボタン #}
-        <button type="submit" id="submit-button" style="display: none;">採点する</button>
+        <button type="submit" id="submit-button" style="display: block;">採点する</button>
     </form>
 
 
@@ -35,5 +47,5 @@
 
 
 {% block extra_js %}
-    <script src="{% static 'typeApp/js/typing_live_input.js' %}"></script> {# ← 新しいJSファイル #}
+    <script src="{% static 'typeApp/js/typing_text_flow.js' %}"></script> {# ← 新しいJSファイル #}
 {% endblock %}
