@@ -12,7 +12,7 @@
         <title>タイピングのページ</title>
 
         <link rel="stylesheet" href="{% static 'typeApp/css/style.css' %}">
-
+        {% block extra_css %}{% endblock %}
     </head>
 
 
@@ -20,10 +20,13 @@
 
     <body>
 
-        <h1><a href="{% url 'typeApp:top' %}">トップページへ</a></h1>
+        <div class="container"> {# ★ここを追加しました！ #}
+            <h1 style="text-align: center; margin-bottom: 20px;"><a href="{% url 'typeApp:top' %}" style="text-decoration: none; color: #2c3e50;">トップページへ</a></h1>
+            {# 上のh1は、body直下でなくcontainer内に入れる方がCSSが適用しやすい。スタイルは一時的に直接指定。 #}
 
-        {% block body %}
-        {% endblock %}
+            {% block body %}
+            {% endblock %}
+        </div> {# ★ここを追加しました！ #}
 
         {# ここに practice.html の extra_js ブロックの中身が挿入される #}
         {% block extra_js %}

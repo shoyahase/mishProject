@@ -32,18 +32,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // ----------------------------------------------------------------
     function displayCurrentPhrase() {
         // コンテナ内の既存のテキストを全て削除し、新しいフレーズを表示する準備
-        // phrasesDisplayContainer.innerHTML = ''; 
+        phrasesDisplayContainer.innerHTML = ''; 
 
         // すべてのフレーズを表示し終えたかチェック
         if (currentPhraseIndex >= phrasesData.length) {
             // 全てのフレーズが表示し終わったら、完了メッセージを表示して処理を終了
             phrasesDisplayContainer.textContent = "全てのフレーズが表示されました。";
-            console.log("全てのフレーズが完了しました。");
+            console.log("全てのフレーズが完了しましたaa。");
             isAllAudioPlayed = true; // フラグを立てる
 
             // ★全ての音声再生が完了したら、デバッグ用のボタンも非表示にする
             const nextButton = document.getElementById('next-phrase-button');
             if (nextButton) nextButton.style.display = 'none';
+
+            if(submitButton){
+                submitButton.style.display = 'block';
+            }
 
             return; // ここで関数を終了
         }
@@ -100,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         displayCurrentPhrase(); // 新しいフレーズを表示
     });
 
-     // ----------------------------------------------------------------
+    // ----------------------------------------------------------------
     // 5. 音声プレーヤー終了時のイベントリスナー (★新規追加/メインの変更)
     // ----------------------------------------------------------------
     mainAudioPlayer.addEventListener('ended', () => {

@@ -7,23 +7,46 @@ import json
 load_dotenv()
 
 # APIキーを設定
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEYが.envファイルに設定されていません。")
+genai.configure(api_key=api_key)
 
-# Geminiモデルを初期化
-# 現在推奨されているモデル名に変更
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+# --- 変更点：v1beta APIで利用可能なモデル名に修正 ---
+# google-generativeaiライブラリはv1betaエンドポイントを呼び出すため、
+# それに対応したプレビュー版のモデル名を指定する必要があります。
+model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
 
-def get_gemini_response(prompt: str) -> str:
+def get_gemini_response(prompt: str, length_request: str = "300文字程度") -> str:
     """
-    Gemini APIにプロンプトを送信し、応答を返す関数
+    指定された状況に基づき、文字起こし練習用のモノローグ形式の文章を生成します。
+    出力は句点区切りで、改行を含まない単一のパラグラフになるように指示します。
     """
+    
+    # Geminiへの指示をより詳細に定義したプロンプト
+    prompt_for_script = f"""あなたは、文字起こし練習アプリのシナリオライターです。
+以下の指示に従って、一人の人物が話している形式（モノローグ）の練習用文章を生成してください。
+
+# 指示
+- **状況**: {prompt}
+- **文字数**: {length_request}
+
+# 形式の制約 (非常に重要)
+- 文章はすべて句点「。」で区切ってください。疑問符「？」や感嘆符「！」は使用しないでください。
+- 改行は絶対に使用せず、全ての文章を一つのパラグラフとして出力してください。
+- 話者名（例：「話者１：」）や括弧は含めないでください。
+
+# 文章生成開始
+"""
+
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = model.generate_content(prompt_for_script)
+        # 念のため、AIが誤って追加した可能性のある改行や不要な空白を削除する
+        cleaned_text = response.text.replace("\n", "").strip()
+        return cleaned_text
     except Exception as e:
-        # エラーハンドリング
-        print(f"An error occurred: {e}")
-        return "エラーが発生しました。しばらくしてから再度お試しください。"
+        print(f"文章生成中にエラーが発生しました: {e}")
+        return "エラーのため文章を生成できませんでした。"
     
 def get_gemini_scoring(correct_answer, user_input):
     
