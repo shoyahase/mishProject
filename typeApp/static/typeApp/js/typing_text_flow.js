@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ★新規追加: 音声再生速度のデフォルト設定
-    const DEFAULT_PLAYBACK_RATE = 0.5; // 1.0 = 標準速度, 0.8 = 80%, 1.2 = 120%
+    const DEFAULT_PLAYBACK_RATE = 1.0; // 1.0 = 標準速度, 0.8 = 80%, 1.2 = 120%
     mainAudioPlayer.playbackRate = DEFAULT_PLAYBACK_RATE; // ここで設定を適用
 
     // ★追加: 全てのフレーズの再生が完了したかを示すフラグ
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentPhraseIndex >= phrasesData.length) {
             // 全てのフレーズが表示し終わったら、完了メッセージを表示して処理を終了
             phrasesDisplayContainer.textContent = "全てのフレーズが表示されました。";
-            console.log("全てのフレーズが完了しましたaa。");
+            console.log("全てのフレーズが完了しましたaabb。");
             isAllAudioPlayed = true; // フラグを立てる
 
             // ★全ての音声再生が完了したら、デバッグ用のボタンも非表示にする
@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // ★ canplayイベントハンドラ内で、isPracticeStarted が true の場合のみ再生を開始する
         if (isPracticeStarted) {
             mainAudioPlayer.playbackRate = DEFAULT_PLAYBACK_RATE; // ここでも再設定して確実に適用
+            console.log("mainAudioPlayer.playbackRate:",mainAudioPlayer.playbackRate);
             mainAudioPlayer.play().catch(error => {
                 console.error("音声の自動再生がブロックされました:", error);
                 // ユーザーに手動再生を促すUIを検討

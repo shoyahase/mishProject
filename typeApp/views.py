@@ -17,6 +17,9 @@ from apiapp.tts import generate_mp3_from_text, split_text_by_punctuation
 
 import json
 
+from apiapp.tts import generate_mp3_from_text # generate_mp3_from_textをインポート
+# from apiapp.apiapp import tts_client # apiapp.pyで初期化されたtts_clientをインポート
+
 class TopView(View):
     def get(self, request):
         date = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y年%m月%d日 %H:%M:%S")
