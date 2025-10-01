@@ -1,0 +1,11 @@
+# .gitignore
+
+# 認証情報
+service-account-key.json
+apiapp/service-account-key.json
+.env
+
+# Django
+db.sqlite3
+__pycache__/
+*.log
