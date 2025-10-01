@@ -34,6 +34,13 @@ class PracticeView(View):
         correct_answer = request.session.get("correct_answer", '')
         user_prompt = request.session.get('user_prompt', "")
 
+        speaking_rate = request.session.pop('speaking_rate', "1.0")
+
+        try:
+            speaking_rate = float(speaking_rate)
+        except (ValueError, TypeError):
+            speaking_rate = 1.0
+
         # ★★★ ここから句点ごとの処理 ★★★
         phrases = split_text_by_punctuation(correct_answer)
         
@@ -50,7 +57,7 @@ class PracticeView(View):
             #ユニークな音声ファイル名を作成audio_1とかにpart付けされる
             audio_filename = f"audio_{uuid.uuid4().hex}_{i}.mp3"
 
-            returned_filename = generate_mp3_from_text(phrase_text, audio_filename, settings.MEDIA_ROOT)
+            returned_filename = generate_mp3_from_text(phrase_text, audio_filename, settings.MEDIA_ROOT, speaking_rate)
             
             if returned_filename:
                 audio_url = os.path.join(settings.MEDIA_URL, returned_filename)

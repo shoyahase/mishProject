@@ -20,6 +20,11 @@
         <textarea name="info" id="info" rows="2" cols="50" placeholder="例：専門用語を少し含めてください">{{ info }}</textarea>
     </div>
 
+    <div style="margin-bottom: 15px;">
+        <label for="speed" style="font-weight: bold;">読み上げ速度</label><br>
+        <input type="number" name="speed" id="speed" value="{{ speed|default:1.0 }}" min="0.2" max="1.5" step="0.1"> 倍速
+    </div>
+
     <button type="submit" style="padding: 10px 20px; font-size: 1.1em;">練習問題を作成する</button>
 </form>
 
