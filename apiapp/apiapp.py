@@ -3,6 +3,51 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 
+import io
+# Google TTS (音声合成)
+# from google.cloud import texttospeech
+import re
+
+# Audio Playback (再生)
+# from pydub import AudioSegment
+# import simpleaudio as sa
+
+def split_into_sentences(text: str) -> list[str]:
+    """正規表現を使って、句読点でテキストを分割する関数"""
+    # 「。」「！」「？」の後で分割し、句読点自体は文に残す
+    sentences = re.split(r'(?<=[。？！])\s*', text)
+    # 結果リストの末尾に空の要素が入ることがあるので除去
+    return [s for s in sentences if s]
+
+# def speak_google_tts_from_memory(text: str, client: texttospeech.TextToSpeechClient):
+#     """Google TTSを使い、短いテキストをメモリから直接再生する関数"""
+#     if not text.strip():
+#         return  # 空白文字だけの文は無視
+
+#     try:
+#         synthesis_input = texttospeech.SynthesisInput(text=text)
+#         voice = texttospeech.VoiceSelectionParams(
+#             language_code="ja-JP", name="ja-JP-Wavenet-B"
+#         )
+#         audio_config = texttospeech.AudioConfig(
+#             audio_encoding=texttospeech.AudioEncoding.MP3
+#         )
+
+#         # タイムスタンプオプションは付けずに、APIをシンプルに呼び出す
+#         response = client.synthesize_speech(
+#             input=synthesis_input, voice=voice, audio_config=audio_config
+#         )
+
+#         # メモリ上でデコードして再生
+#         audio = AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3")
+#         play_obj = sa.play_buffer(audio.raw_data, audio.channels, audio.sample_width, audio.frame_rate)
+#         play_obj.wait_done()
+
+#     except Exception as e:
+#         print(f"Google TTSでエラーが発生しました: {e}")
+
+
+
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
@@ -15,34 +60,71 @@ genai.configure(api_key=api_key)
 # --- 変更点：v1beta APIで利用可能なモデル名に修正 ---
 # google-generativeaiライブラリはv1betaエンドポイントを呼び出すため、
 # それに対応したプレビュー版のモデル名を指定する必要があります。
-model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
+model = genai.GenerativeModel('gemini-2.5-flash')
+
+# Google Cloud TTS API
+# このスクリプトを実行する前に、認証キーのJSONファイルをダウンロードし、
+# このスクリプトと同じフォルダに置いてください。
+# google_api_key_path = "service-account-key.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_api_key_path
+# tts_client = texttospeech.TextToSpeechClient()
 
 def get_gemini_response(prompt: str, length_request: str = "300文字程度") -> str:
     """
     指定された状況に基づき、文字起こし練習用のモノローグ形式の文章を生成します。
     出力は句点区切りで、改行を含まない単一のパラグラフになるように指示します。
     """
-    
+
+    content = "会社説明会で話されるような文章にしてください．"
+    word = 100
+    word_min = word * 0.8
+    word_max = word * 1.2
+
+
     # Geminiへの指示をより詳細に定義したプロンプト
-    prompt_for_script = f"""あなたは、文字起こし練習アプリのシナリオライターです。
-以下の指示に従って、一人の人物が話している形式（モノローグ）の練習用文章を生成してください。
+#     prompt_for_script = f"""あなたは、文字起こし練習アプリのシナリオライターです。
+# 以下の指示に従って、一人の人物が話している形式（モノローグ）の練習用文章を生成してください。
 
-# 指示
-- **状況**: {prompt}
-- **文字数**: {length_request}
+# # 指示
+# - **状況**: {prompt}
+# - **文字数**: {length_request}
 
-# 形式の制約 (非常に重要)
-- 文章はすべて句点「。」で区切ってください。疑問符「？」や感嘆符「！」は使用しないでください。
-- 改行は絶対に使用せず、全ての文章を一つのパラグラフとして出力してください。
-- 話者名（例：「話者１：」）や括弧は含めないでください。
+# # 形式の制約 (非常に重要)
+# - 文章はすべて句点「。」で区切ってください。疑問符「？」や感嘆符「！」は使用しないでください。
+# - 改行は絶対に使用せず、全ての文章を一つのパラグラフとして出力してください。
+# - 話者名（例：「話者１：」）や括弧は含めないでください。
 
-# 文章生成開始
+# # 文章生成開始
+# """
+    
+    prompt_for_script = f"""
+##命令
+日本語で任意の文章を条件に従ってできるだけ早く出力しなさい．
+
+##条件
+-{word_min}文字～{word_max}文字で出力すること．
+-指定した文字数はpythonを用いて条件にあっているか確認すること．
+-文章は1つ作成すること．
+-出力は文字数の条件を満たした場合のみ出力すること．
+-出力は作成した文章のみを出力すること．
+-出力にアルファベットは含まないこと．
+-内容は{content}
+-出力のjsonのキーを**text**としてください．
 """
 
     try:
-        response = model.generate_content(prompt_for_script)
+        response = model.generate_content(prompt_for_script,generation_config={"response_mime_type": "application/json"})
+
+        # # 返ってきたJSON文字列をPythonの辞書に変換
+        data = json.loads(response.text)
+        full_text = data["text"]
+
+        print("response:", response)
+        print("data:",data)
+        print("full_text:",full_text)
+
         # 念のため、AIが誤って追加した可能性のある改行や不要な空白を削除する
-        cleaned_text = response.text.replace("\n", "").strip()
+        cleaned_text = full_text.replace("\n", "").strip()
         return cleaned_text
     except Exception as e:
         print(f"文章生成中にエラーが発生しました: {e}")
