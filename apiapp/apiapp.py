@@ -5,46 +5,18 @@ import json
 
 import io
 # Google TTS (音声合成)
-# from google.cloud import texttospeech
+from google.cloud import texttospeech
 import re
 
-# Audio Playback (再生)
+# # Audio Playback (再生)
 # from pydub import AudioSegment
 # import simpleaudio as sa
 
-def split_into_sentences(text: str) -> list[str]:
-    """正規表現を使って、句読点でテキストを分割する関数"""
-    # 「。」「！」「？」の後で分割し、句読点自体は文に残す
-    sentences = re.split(r'(?<=[。？！])\s*', text)
-    # 結果リストの末尾に空の要素が入ることがあるので除去
-    return [s for s in sentences if s]
+# Gemini (テキスト生成)
+import google.generativeai as genai
 
-# def speak_google_tts_from_memory(text: str, client: texttospeech.TextToSpeechClient):
-#     """Google TTSを使い、短いテキストをメモリから直接再生する関数"""
-#     if not text.strip():
-#         return  # 空白文字だけの文は無視
-
-#     try:
-#         synthesis_input = texttospeech.SynthesisInput(text=text)
-#         voice = texttospeech.VoiceSelectionParams(
-#             language_code="ja-JP", name="ja-JP-Wavenet-B"
-#         )
-#         audio_config = texttospeech.AudioConfig(
-#             audio_encoding=texttospeech.AudioEncoding.MP3
-#         )
-
-#         # タイムスタンプオプションは付けずに、APIをシンプルに呼び出す
-#         response = client.synthesize_speech(
-#             input=synthesis_input, voice=voice, audio_config=audio_config
-#         )
-
-#         # メモリ上でデコードして再生
-#         audio = AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3")
-#         play_obj = sa.play_buffer(audio.raw_data, audio.channels, audio.sample_width, audio.frame_rate)
-#         play_obj.wait_done()
-
-#     except Exception as e:
-#         print(f"Google TTSでエラーが発生しました: {e}")
+# Google TTS (音声合成)
+from google.cloud import texttospeech
 
 
 
@@ -65,9 +37,11 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 # Google Cloud TTS API
 # このスクリプトを実行する前に、認証キーのJSONファイルをダウンロードし、
 # このスクリプトと同じフォルダに置いてください。
-# google_api_key_path = "service-account-key.json"
+# google_api_key_path = "./service-account-key.json"
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_api_key_path
-# tts_client = texttospeech.TextToSpeechClient()
+# ttl_client = texttospeech.TextToSpeechClient()
+
+
 
 def get_gemini_response(prompt: str, length_request: str = "300文字程度") -> str:
     """
