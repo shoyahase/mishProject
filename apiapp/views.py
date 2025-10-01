@@ -14,6 +14,10 @@ class AskGeminiView(View):
         length_str = request.POST.get('length', '300')
         info = request.POST.get('info', '')
 
+        speaking_rate = request.POST.get('speed', '1.0')
+
+        
+
         try:
             length = int(length_str)
         except (ValueError, TypeError):
@@ -40,6 +44,8 @@ class AskGeminiView(View):
         request.session['user_prompt_content'] = content
         request.session['user_prompt_length'] = length
         request.session['user_prompt_info'] = info
+
+        request.session['speaking_rate'] = speaking_rate
 
         return redirect('typeApp:practice')
 
