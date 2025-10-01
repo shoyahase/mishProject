@@ -43,40 +43,23 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 
 
 
-def get_gemini_response(prompt: str, length_request: str = "300文字程度") -> str:
+def get_gemini_response(content: str = "会社説明会で話されるような文章にしてください．"
+                        , length_request: int = 300
+                        , info: str = '') -> str:
     """
     指定された状況に基づき、文字起こし練習用のモノローグ形式の文章を生成します。
     出力は句点区切りで、改行を含まない単一のパラグラフになるように指示します。
     """
 
-    content = "会社説明会で話されるような文章にしてください．"
-    word = 100
-    word_min = word * 0.8
-    word_max = word * 1.2
-
-
-    # Geminiへの指示をより詳細に定義したプロンプト
-#     prompt_for_script = f"""あなたは、文字起こし練習アプリのシナリオライターです。
-# 以下の指示に従って、一人の人物が話している形式（モノローグ）の練習用文章を生成してください。
-
-# # 指示
-# - **状況**: {prompt}
-# - **文字数**: {length_request}
-
-# # 形式の制約 (非常に重要)
-# - 文章はすべて句点「。」で区切ってください。疑問符「？」や感嘆符「！」は使用しないでください。
-# - 改行は絶対に使用せず、全ての文章を一つのパラグラフとして出力してください。
-# - 話者名（例：「話者１：」）や括弧は含めないでください。
-
-# # 文章生成開始
-# """
+    length_min = length_request * 0.8
+    length_max = length_request * 1.2
     
     prompt_for_script = f"""
 ##命令
 日本語で任意の文章を条件に従ってできるだけ早く出力しなさい．
 
 ##条件
--{word_min}文字～{word_max}文字で出力すること．
+-{length_min}文字～{length_max}文字で出力すること．
 -指定した文字数はpythonを用いて条件にあっているか確認すること．
 -文章は1つ作成すること．
 -出力は文字数の条件を満たした場合のみ出力すること．
@@ -84,6 +67,12 @@ def get_gemini_response(prompt: str, length_request: str = "300文字程度") ->
 -出力にアルファベットは含まないこと．
 -内容は{content}
 -出力のjsonのキーを**text**としてください．
+
+# 形式の制約 (非常に重要)
+- 話者名（例：「話者１：」）や括弧は含めないでください。
+
+##備考
+{info}
 """
 
     try:

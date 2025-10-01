@@ -10,24 +10,36 @@ class AskGeminiView(View):
 
     def post(self, request):
         # フォームから送信された質問を取得
-        user_prompt = request.POST.get('prompt', '')
+        content = request.POST.get('prompt', '')
+        length_str = request.POST.get('length', '300')
+        info = request.POST.get('info', '')
 
+        try:
+            length = int(length_str)
+        except (ValueError, TypeError):
+            length = 300 # 変換に失敗した場合はデフォルト値の300を設定
         
         # Gemini APIから応答を取得
-        # gemini_answer = get_gemini_response(user_prompt)
+        gemini_answer = get_gemini_response(
+            content=content,
+            length_request=length,
+            info=info
+        )
 
         
         # gemini_answer = "この文を入力してください。きっちょう"
 
-        gemini_answer = f'''皆様、日々の生活で「もっとこうだったら良いのに」と感じる瞬間はありませんか？そのお悩みを、この新商品「スマートアシスト」が解決します。これ一つで、あなたの日常がもっと快適で豊かに。ぜひ、この感動を体験してください。'''
+        # gemini_answer = f'''皆様、日々の生活で「もっとこうだったら良いのに」と感じる瞬間はありませんか？そのお悩みを、この新商品「スマートアシスト」が解決します。これ一つで、あなたの日常がもっと快適で豊かに。ぜひ、この感動を体験してください。'''
 
         # gemini_answer = "文章1だよ。文章2だよ。"
 
         # ★★★ 取得した答えをセッションに保存 ★★★
         request.session['correct_answer'] = gemini_answer
-        request.session['user_prompt'] = user_prompt
+        request.session['user_prompt'] = f"「{content}」という内容で、約{length}文字の文章"
 
-
+        request.session['user_prompt_content'] = content
+        request.session['user_prompt_length'] = length
+        request.session['user_prompt_info'] = info
 
         return redirect('typeApp:practice')
 

@@ -5,9 +5,22 @@
 
 <form method="POST">
     {% csrf_token %}
-    <textarea name="prompt" rows="4" cols="50" placeholder="ここで作問を要求">{{ prompt }}</textarea>
-    <br>
-    <button type="submit">送信</button>
+    <div style="margin-bottom: 15px;">
+        <label for="prompt" style="font-weight: bold;">どのような文章にしますか？（内容）</label><br>
+        <textarea name="prompt" id="prompt" rows="4" cols="50" placeholder="例：IT企業の株主総会で話されるようなスピーチ">{{ content }}</textarea>
+    </div>
+    
+    <div style="margin-bottom: 15px;">
+        <label for="length" style="font-weight: bold;">目標文字数</label><br>
+        <input type="number" name="length" id="length" value="{{ length_request|default:300 }}" min="50" max="500" step="50"> 文字
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label for="info" style="font-weight: bold;">追加の指示や備考（任意）</label><br>
+        <textarea name="info" id="info" rows="2" cols="50" placeholder="例：専門用語を少し含めてください">{{ info }}</textarea>
+    </div>
+
+    <button type="submit" style="padding: 10px 20px; font-size: 1.1em;">練習問題を作成する</button>
 </form>
 
 
