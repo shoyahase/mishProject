@@ -9,3 +9,6 @@ apiapp/service-account-key.json
 db.sqlite3
 __pycache__/
 *.log
+
+# 仮想環境
+Django_env/
