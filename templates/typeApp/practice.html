@@ -1,51 +1,25 @@
 
-
 {% extends "base/type_base.html" %}
-{#↓継承しているからこれはいらないと思うのになくすとエラーが起きるs#}
-{% load static %} {# ← ここに追加してみる #}
 {% block body %}
 
-    <h1>リアルタイム練習</h1>
+<h2>結果ページ</h2>
 
-    {# 音声プレーヤーは1つに集約し、JavaScriptでsrcを切り替える #}
-    <div style="margin-bottom: 20px;">
-        <audio id="main-audio-player" controls style="display: none;">
-            お使いのブラウザは音声要素をサポートしていません。
-        </audio>
-        <button id="play-next-phrase" style="display: none;">次のフレーズ</button> {# デバッグ用、または手動再生用 #}
-    </div>
+<h2>あなたの入力</h2>
+<p>{{user_input}}</p>
 
-    {# ★追加: スタートを促すメッセージ #}
-    <div id="start-message" style="text-align: center; margin-top: 50px;">
-        <p style="font-size: 1.8em; font-weight: bold;">スペースキーまたはエンターキーを押して開始</p>
-        <p style="font-size: 1.2em; color: #666;">（最初のフレーズが表示され、音声が再生されます）</p>
-    </div>
+<hr>
 
+<h2>正解のテキスト</h2>
+<p>{{correct_answer}}</p>
 
-    {# 各フレーズのテキストを表示するコンテナ #}
-    <div id="phrases-display-container" data-phrases-json="{{ phrases_data_json }}" style="display: none;">
-        </div>
+<hr>
 
+<h2>スコア</h2>
+<p>{{score}}</p>
 
-    <hr>
+<hr>
 
-    <form action="{% url 'typeApp:result' %}" method="post" id="result-form" style="margin-top: 20px;">
-        {% csrf_token %}
-        
-        {# ★★★ views.pyから渡されたフォーム（textarea）を描画 ★★★ #}
-        <div id="user-input-form-container" style="display: none;">
-            {{ form.as_p }}
-        </div>
-        
-        {# 最初は隠しておき、完了後に表示するボタン #}
-        <button type="submit" id="submit-button" style="display: none;">採点する</button>
-    </form>
+<h2>アドバイス</h2>
+<p>{{advice}}</p>
 
-
-{% endblock %}
-
-
-
-{% block extra_js %}
-    <script src="{% static 'typeApp/js/typing_text_flow.js' %}"></script> {# ← 新しいJSファイル #}
 {% endblock %}

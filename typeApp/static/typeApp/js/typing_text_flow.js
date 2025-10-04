@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPhraseIndex = 0; // 現在表示しているフレーズのインデックスを管理する変数
 
     const mainAudioPlayer = document.getElementById('main-audio-player'); // ★追加: オーディオプレーヤーの取得
-    const userInputArea = document.getElementById('user-input-area');     // ★追加 (HTMLに存在すると仮定)
+    const userInputArea = document.getElementById('user-input');     // ★追加 (HTMLに存在すると仮定)
     const submitButton = document.getElementById('submit-button');       // ★追加 (HTMLに存在すると仮定)
-
+    const playbackMode = phrasesDisplayContainer.dataset.playbackMode;
+    const manualNextInstruction = document.getElementById('manual-next-instruction');
 
     // ★新規追加: 音声再生速度のデフォルト設定
     const DEFAULT_PLAYBACK_RATE = 1.0; // 1.0 = 標準速度, 0.8 = 80%, 1.2 = 120%
@@ -21,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ★追加: 全てのフレーズの再生が完了したかを示すフラグ
     let isAllAudioPlayed = false;
-    
     let isPracticeStarted  = false;
+    let audioHasEnded = true;
 
 
     let isCanplayListenerRegistered = false;
@@ -38,16 +39,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentPhraseIndex >= phrasesData.length) {
             // 全てのフレーズが表示し終わったら、完了メッセージを表示して処理を終了
             phrasesDisplayContainer.textContent = "全てのフレーズが表示されました。";
-            console.log("全てのフレーズが完了しましたaabb。");
+            console.log("全てのフレーズが完了しました。");
             isAllAudioPlayed = true; // フラグを立てる
 
-            // ★全ての音声再生が完了したら、デバッグ用のボタンも非表示にする
-            const nextButton = document.getElementById('next-phrase-button');
-            if (nextButton) nextButton.style.display = 'none';
+      
 
             if(submitButton){
                 submitButton.style.display = 'block';
             }
+
+            manualNextInstruction.classList.remove('visible');
 
             return; // ここで関数を終了
         }
@@ -58,6 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // 取得したフレーズのテキストをそのままコンテナに表示
         // この段階ではまだ1文字ずつの<span>要素にはしません
         phrasesDisplayContainer.textContent = currentPhraseData.text;
+
+        manualNextInstruction.classList.remove('visible');
 
         if(currentPhraseData.audio_url){
             mainAudioPlayer.src = currentPhraseData.audio_url;
@@ -83,38 +86,29 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`フレーズ ${currentPhraseIndex + 1} を表示: "${currentPhraseData.text}"`);
     }
 
-    // ----------------------------------------------------------------
-    // 3. 初期処理: ページ読み込み時に最初のフレーズを表示
-    // ----------------------------------------------------------------
-    displayCurrentPhrase();
 
-    // ----------------------------------------------------------------
-    // 4. (デバッグ用) 次のフレーズへ進むボタンの追加とイベントリスナー
-    // ----------------------------------------------------------------
-    // 実際にはタイピング完了時や音声再生完了時に進むが、
-    // まずは手動で動作を確認するためのボタン
-    const nextPhraseButton = document.createElement('button');
-    nextPhraseButton.textContent = '次のフレーズを表示';
-    // ボタンを phrasesDisplayContainer の直後に挿入
-    phrasesDisplayContainer.parentNode.insertBefore(nextPhraseButton, phrasesDisplayContainer.nextSibling);
 
-    // ボタンがクリックされたら
-    nextPhraseButton.addEventListener('click', () => {
-        currentPhraseIndex++; // 次のフレーズのインデックスに更新
-        displayCurrentPhrase(); // 新しいフレーズを表示
-    });
+
 
     // ----------------------------------------------------------------
     // 5. 音声プレーヤー終了時のイベントリスナー (★新規追加/メインの変更)
     // ----------------------------------------------------------------
     mainAudioPlayer.addEventListener('ended', () => {
-        console.log(`フレーズ ${currentPhraseIndex + 1} の音声再生が終了しました。`);
-        
+         
         // ★★★ ここから追加/変更 ★★★
         // 全ての音声再生が完了していない場合のみ、次のフレーズへ自動的に進む
-        if (!isAllAudioPlayed) {
+
+        // 自動再生
+        if (playbackMode==='auto' && !isAllAudioPlayed && isPracticeStarted) {
             currentPhraseIndex++; // 次のフレーズのインデックスに更新
             displayCurrentPhrase(); // 新しいフレーズを表示し、音声を再生
+        }else{
+            // 手動再生
+            // 手動モードの場合は音声が終了したことを記録
+            audioHasEnded = true;
+            if (playbackMode === 'manual' && !isAllAudioPlayed) {
+                manualNextInstruction.classList.add('visible'); // ★追加：手動モードで音声終了時に案内を表示
+            }
         }
         // ★★★ ここまで追加/変更 ★★★
     });
@@ -131,11 +125,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (phrasesDisplayContainer) phrasesDisplayContainer.style.display = 'block'; // フレーズ表示コンテナを表示する
         if (userInputFormContainer) userInputFormContainer.style.display = 'block'; // 入力フォームを表示する
         if (mainAudioPlayer) mainAudioPlayer.style.display = 'block'; // 音声プレーヤーを表示する
-        if (nextPhraseButton) nextPhraseButton.style.display = 'inline-block'; // デバッグボタンも表示
-
+        
         displayCurrentPhrase(); // 最初のフレーズのテキストと音声を再生
 
-        if (userInputArea) userInputArea.focus(); // 練習開始と同時に入力欄にフォーカスを当てる
+        console.log("userInputArea:",userInputArea);
+        if (userInputArea){
+            userInputArea.focus(); // 練習開始と同時に入力欄にフォーカスを当てる
+        }
         
         // 初回スタート時のキーイベントリスナーは不要になるので削除
         document.removeEventListener('keydown', handleStartKey);
@@ -145,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 7. 初回再生をキー入力で開始するためのイベントリスナー
     // ----------------------------------------------------------------
     function handleStartKey(event) {
+        // if (((event.ctrlKey || event.metaKey) && event.code === 'Enter') && !isPracticeStarted) {
         if ((event.code === 'Space' || event.code === 'Enter') && !isPracticeStarted) {
             event.preventDefault(); 
             console.log("練習をキー入力で開始します。");
@@ -152,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     document.addEventListener('keydown', handleStartKey);
+    document.addEventListener('keydown', handleManualNext);
 
     function handleAudioCanplay() {
         // ★ canplayイベントハンドラ内で、isPracticeStarted が true の場合のみ再生を開始する
@@ -169,6 +167,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // 現状は displayCurrentPhrase 内で canplay リスナーが重複登録されないように制御しているのでOK。
     }
 
+    
+
+    function handleManualNext(event) {
+        console.log("playbackMode:",playbackMode);
+        console.log("event.code:",event.code);
+        console.log("isPracticeStarted:",isPracticeStarted);
+        console.log("!isAllAudioPlayed:",!isAllAudioPlayed);
+        console.log("audioHasEnded:",audioHasEnded);
+
+        const isCtrlPressed = event.ctrlKey || event.metaKey;
+
+        // 手動モード、練習中、全音声未再生、かつ現在の音声が終了している場合のみ
+        if (playbackMode === 'manual' && event.code === 'Enter' && isCtrlPressed && isPracticeStarted && !isAllAudioPlayed && audioHasEnded) {
+            // event.preventDefault();
+            // // 入力欄にフォーカスがあるときにエンターキーを押すと改行されてしまうのを防ぐ
+            // if (document.activeElement === userInputArea) {
+            //     userInputArea.blur(); // 一時的にフォーカスを外す
+            //     setTimeout(() => userInputArea.focus(), 10); // すぐに戻す
+            // }
+
+            console.log("次に行こうとしている。");
+            
+            currentPhraseIndex++;
+            displayCurrentPhrase();
+        }
+    }
     
     // ----------------------------------------------------------------
     // (補足) 今回はまだ使用しない要素
