@@ -120,17 +120,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # 2. collectstaticが全ての静的ファイルを集めるための場所 (出力先)
 # プロジェクトのルートに 'staticfiles' というフォルダが作られる
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 3. Djangoに「ここも静的ファイルを探しに行って」と教える場所 (入力元)
-STATICFILES_DIRS = [
-    # ここに 'typeApp/static' を追加します
-    BASE_DIR / 'typeApp/static',
-]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
