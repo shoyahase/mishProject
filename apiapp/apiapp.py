@@ -1,6 +1,6 @@
 import os
 import google.generativeai as genai
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import json
 
 import io
@@ -21,7 +21,7 @@ from google.cloud import texttospeech
 
 
 # .envファイルから環境変数を読み込む
-load_dotenv()
+# load_dotenv()
 
 # APIキーを設定
 api_key = os.getenv("GEMINI_API_KEY")

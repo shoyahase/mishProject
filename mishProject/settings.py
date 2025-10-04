@@ -19,8 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m9ohd*+vnl+!n$16zg_!u1oied+nn1_g313ec+lt!)^i46l!(@'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -47,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # この行を追加
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -122,6 +122,16 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# 2. collectstaticが全ての静的ファイルを集めるための場所 (出力先)
+# プロジェクトのルートに 'staticfiles' というフォルダが作られる
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 3. Djangoに「ここも静的ファイルを探しに行って」と教える場所 (入力元)
+STATICFILES_DIRS = [
+    # ここに 'typeApp/static' を追加します
+    BASE_DIR / 'typeApp/static',
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -130,24 +140,46 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #API用の設定
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # .envファイルを読み込む
-load_dotenv()
+# load_dotenv()
 
 # Build paths...
 
-# .envからSECRET_KEYを読み込む
-SECRET_KEY = os.getenv('SECRET_KEY')
+# # .envからSECRET_KEYを読み込む
+# SECRET_KEY = os.getenv('SECRET_KEY')
 
-# .envからDEBUG設定を読み込む (文字列の'True'をboolのTrueに変換)
-DEBUG = os.getenv('DEBUG') == 'True'
+# # .envからDEBUG設定を読み込む (文字列の'True'をboolのTrueに変換)
+# DEBUG = os.getenv('DEBUG') == 'True'
 
 
 
-#mediaディレクトリをプロジェクトのルートに作成
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # mediaディレクトリをプロジェクトのルートに作成する想定
+# #mediaディレクトリをプロジェクトのルートに作成
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # mediaディレクトリをプロジェクトのルートに作成する想定
+
+
+# Renderで設定した 'SECRET_KEY' という名前の環境変数を読み込む
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
+# 'DEBUG' という名前の環境変数を読み込む
+# 環境変数は常に文字列として読み込まれるため、'True'という文字列と比較してBooleanに変換する
+# .get()の第二引数は、環境変数が設定されていなかった場合のデフォルト値
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# データベースURLの例
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Google Cloudの認証情報の例
+GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+
+# Cloudinary Credentials
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
+
+
 
 
 # ログの管理

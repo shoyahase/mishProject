@@ -10,7 +10,7 @@ import google.generativeai as genai
 # Google TTS (音声合成)
 from google.cloud import texttospeech
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 
 import cloudinary
@@ -32,7 +32,7 @@ cloudinary.config(
 # google_api_key_path = "service-account-key.json"
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_api_key_path
 # client = texttospeech.TextToSpeechClient()
-load_dotenv()
+# load_dotenv()
 
 try:
     tts_client = texttospeech.TextToSpeechClient()
