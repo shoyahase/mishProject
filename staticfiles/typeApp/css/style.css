@@ -1,0 +1,326 @@
+
+/* ========================================================================
+   General Styles (一般的なスタイル)
+   ======================================================================== */
+body {
+    font-family: 'Segoe UI', 'Meiryo UI', 'Yu Gothic', sans-serif; /* 読みやすいフォント */
+    background-color: #f4f7f6; /* 薄いグレーの背景 */
+    color: #333; /* 基本テキスト色 */
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    display: flex; /* Flexboxで中央寄せ */
+    justify-content: center; /* 水平中央寄せ */
+    align-items: flex-start; /* 上部に配置 */
+    min-height: 100vh; /* 少なくともビューポートの高さ */
+}
+
+/* コンテンツを囲むラッパー */
+.container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 30px 40px;
+    width: 100%;
+    max-width: 800px; /* 最大幅を設定して見やすくする */
+    margin: 20px 0; /* 上下のマージン */
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 40px 0;
+}
+
+/* ========================================================================
+   Audio Player (音声プレーヤー)
+   ======================================================================== */
+#main-audio-player {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 20px auto; /* 中央寄せ */
+    display: block; /* display: none; の場合はCSSで上書きされる */
+    filter: sepia(20%) saturate(70%) hue-rotate(200deg) brightness(100%) contrast(90%); /* 少しレトロな色合い */
+}
+
+#play-next-phrase {
+    display: block; /* デバッグボタン表示時はブロック要素に */
+    margin: 15px auto;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#play-next-phrase:hover {
+    background-color: #2980b9;
+}
+
+/* ========================================================================
+   Start Message (スタートメッセージ)
+   ======================================================================== */
+#start-message {
+    text-align: center;
+    margin-top: 80px;
+    padding: 30px;
+    border: 2px dashed #95a5a6;
+    border-radius: 10px;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    animation: pulse 1.5s infinite alternate; /* 点滅アニメーション */
+}
+
+#start-message p:first-child {
+    font-size: 2.5em; /* より大きく */
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#start-message p:last-child {
+    font-size: 1.3em;
+    color: #555;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(1.02);
+        opacity: 1;
+    }
+}
+
+
+/* ========================================================================
+   Phrases Display Container (フレーズ表示コンテナ)
+   ======================================================================== */
+#phrases-display-container {
+    background-color: #e8f5e9; /* 薄い緑色の背景 */
+    border: 1px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 30px;
+    min-height: 120px; /* ある程度の高さを確保 */
+    display: flex; /* テキストの整形用 */
+    align-items: center; /* 垂直中央寄せ */
+    justify-content: center; /* 水平中央寄せ */
+    font-size: 2em; /* 読みやすい大きなフォント */
+    font-weight: 500;
+    color: #2e7d32; /* 濃い緑色のテキスト */
+    text-align: center;
+    word-wrap: break-word; /* 長い単語の折り返し */
+    white-space: pre-wrap; /* スペースや改行を保持 */
+    margin-bottom: 30px;
+}
+
+/* ========================================================================
+   User Input Form (ユーザー入力フォーム)
+   ======================================================================== */
+#user-input-form-container {
+    margin-top: 30px;
+}
+
+#user-input-form-container p { /* Django form.as_p で生成される <p> タグ */
+    margin-bottom: 0; /* デフォルトマージンをリセット */
+}
+
+textarea#id_user_input { /* DjangoフォームのtextareaのID */
+    width: calc(100% - 22px); /* パディング分を考慮 */
+    min-height: 120px;
+    padding: 10px;
+    border: 2px solid #b0bec5;
+    border-radius: 8px;
+    font-size: 1.3em;
+    resize: vertical; /* 垂直方向にのみサイズ変更可能 */
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+textarea#id_user_input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+/* ========================================================================
+   Submit Button (送信ボタン)
+   ======================================================================== */
+button#submit-button {
+    display: block; /* 初期状態ではdisplay:block; なので、中央寄せにする */
+    margin: 30px auto 0 auto;
+    padding: 12px 28px;
+    background-color: #27ae60; /* 緑系の色 */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button#submit-button:hover {
+    background-color: #229954;
+    transform: translateY(-2px);
+}
+
+button#submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================================================
+   Responsiveness (レスポンシブ対応)
+   ======================================================================== */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 25px;
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    #start-message p:first-child {
+        font-size: 2em;
+    }
+
+    #start-message p:last-child {
+        font-size: 1em;
+    }
+
+    #phrases-display-container {
+        font-size: 1.6em;
+        padding: 20px;
+    }
+
+    textarea#id_user_input {
+        font-size: 1.1em;
+    }
+
+    button#submit-button {
+        font-size: 1.1em;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px 20px;
+        margin: 5px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    #start-message p:first-child {
+        font-size: 1.5em;
+    }
+
+    #phrases-display-container {
+        font-size: 1.3em;
+        min-height: 100px;
+    }
+
+    textarea#id_user_input {
+        min-height: 100px;
+    }
+}
+
+/* ========================================================================
+   Loading Overlay (待機画面オーバーレイ)
+   ======================================================================== */
+.loading-overlay {
+    position: fixed; /* 画面に固定表示 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.85); /* 少し透明な白い背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000; /* 他のどの要素よりも手前に表示 */
+    visibility: hidden; /* 初期状態では非表示 */
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+/* 表示するためのクラス */
+.loading-overlay.show {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Spinner Animation (くるくる回るアニメーション) */
+.spinner {
+    border: 8px solid #f3f3f3; /* 薄いグレーの円 */
+    border-top: 8px solid #3498db; /* 上部だけ青色 */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading Message (待機メッセージ) */
+.loading-message {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* ========================================================================
+   Instruction Box (案内ボックス)
+   ======================================================================== */
+.instruction-box {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    color: #495057;
+    font-size: 0.9em;
+    font-style: italic;
+
+    /* レイアウトシフト対策 */
+    min-height: 1.2em; /* テキスト1行分の高さを確保 */
+    visibility: hidden; /* 見えなくするが、スペースは確保 */
+    opacity: 0;         /* 透明にする */
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+.instruction-box.visible {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.instruction-box p {
+    margin: 0;
+}
+
