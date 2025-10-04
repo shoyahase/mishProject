@@ -150,3 +150,20 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # mediaディレクトリをプロジェクトのルートに作成する想定
 
 
+# ログの管理
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO", # INFOレベル以上のログをすべて出力
+    },
+}
+
+
